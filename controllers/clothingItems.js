@@ -15,18 +15,21 @@ module.exports.createItem = (req, res) => {
     .then((item) => res.send({ data: item }))
     .catch((err) => {
       console.error(err);
-
-      if (err.name === errorCodes.BAD_REQUEST.number) {
+      if (err.name === "CastError") {
+        // Invalid ID format (not a valid ObjectId)
         return res
           .status(errorCodes.BAD_REQUEST.number)
           .send({ message: errorCodes.BAD_REQUEST.message });
       }
-      if (err.name === errorCodes.NOT_FOUND.number) {
+
+      if (err.name === "DocumentNotFoundError") {
+        // Document wasn't found (valid ID format but no matching user)
         return res
           .status(errorCodes.NOT_FOUND.number)
           .send({ message: errorCodes.NOT_FOUND.message });
       }
-      // if no errors match, return a response with status code 500
+
+      // Any other error is treated as a server error
       return res
         .status(errorCodes.INTERNAL_SERVER_ERROR.number)
         .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
@@ -36,15 +39,29 @@ module.exports.createItem = (req, res) => {
 // the getUser request handler
 module.exports.deleteItemByID = (req, res) => {
   Item.findByIdAndDelete(req.params.itemId)
-    .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.statusCode = 404;
-      throw error; // Remember to throw an error so .catch handles it instead of .then
-    })
+    .orFail() // No need to pass a custom error, Mongoose handles this
+
     .then((item) => res.send({ data: item }))
     .catch((err) => {
       console.error(err);
-      res.status(500).send({ message: err.message });
+      if (err.name === "CastError") {
+        // Invalid ID format (not a valid ObjectId)
+        return res
+          .status(errorCodes.BAD_REQUEST.number)
+          .send({ message: errorCodes.BAD_REQUEST.message });
+      }
+
+      if (err.name === "DocumentNotFoundError") {
+        // Document wasn't found (valid ID format but no matching user)
+        return res
+          .status(errorCodes.NOT_FOUND.number)
+          .send({ message: errorCodes.NOT_FOUND.message });
+      }
+
+      // Any other error is treated as a server error
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
