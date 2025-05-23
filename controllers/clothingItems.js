@@ -35,7 +35,7 @@ module.exports.deleteItemByID = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.equals(req.user._id)) {
-        return Item.findByIdAndRemove(itemId).then(() => {
+        return Item.findByIdAndDelete(itemId).then(() => {
           res.status(200).send({ message: "Item deleted" });
         });
       }
