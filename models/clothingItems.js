@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+
 const clothingSchema = new mongoose.Schema({
   name: {
     // every user has a name field, the requirements for which are described below:

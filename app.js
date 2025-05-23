@@ -1,14 +1,12 @@
-const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const routes = require("./routes/index");
+
 const app = express();
 
 const { PORT = 3001 } = process.env;
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   req.user = {
     _id: "682e15ad8764862e66ca4530", // paste the _id of the test user created in the previous step
@@ -17,7 +15,7 @@ app.use((req, res, next) => {
 });
 app.use("/", routes);
 
-const handleNonExistentRoute = (req, res, next) => {
+const handleNonExistentRoute = (req, res) => {
   res.status(404);
   res.send({
     message: "Requested resource not found",

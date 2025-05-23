@@ -20,16 +20,16 @@ module.exports.createItem = (req, res) => {
         return res
           .status(errorCodes.BAD_REQUEST.number)
           .send({ message: errorCodes.BAD_REQUEST.message });
-      } else if (err.name === errorCodes.NOT_FOUND.number) {
+      }
+      if (err.name === errorCodes.NOT_FOUND.number) {
         return res
           .status(errorCodes.NOT_FOUND.number)
           .send({ message: errorCodes.NOT_FOUND.message });
-      } else {
-        // if no errors match, return a response with status code 500
-        return res
-          .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-          .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
       }
+      // if no errors match, return a response with status code 500
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
