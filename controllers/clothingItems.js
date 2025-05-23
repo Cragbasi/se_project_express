@@ -3,62 +3,57 @@ const { errorCodes } = require("../utils/errors");
 
 module.exports.getItems = (req, res) => {
   Item.find({})
-    .then((items) => res.send({ data: items }))
-    .catch(() => res.status(500).send({ message: "Error" }));
+    .then((items) => res.status(200).send(items))
+    .catch(() => {
+      res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+    });
 };
 
 module.exports.createItem = (req, res) => {
-  const { name, weather, link } = req.body;
-  console.log(req.user._id);
+  const { name, weather, imageUrl } = req.body;
 
-  Item.create({ name, weather, link, owner: req.user._id })
-    .then((item) => res.send({ data: item }))
+  Item.create({ name, weather, imageUrl, owner: req.user._id })
+    .then((item) => res.status(201).send(item))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "CastError") {
-        // Invalid ID format (not a valid ObjectId)
+      if (err.name === "ValidationError") {
         return res
           .status(errorCodes.BAD_REQUEST.number)
           .send({ message: errorCodes.BAD_REQUEST.message });
       }
-
-      if (err.name === "DocumentNotFoundError") {
-        // Document wasn't found (valid ID format but no matching user)
-        return res
-          .status(errorCodes.NOT_FOUND.number)
-          .send({ message: errorCodes.NOT_FOUND.message });
-      }
-
-      // Any other error is treated as a server error
       return res
         .status(errorCodes.INTERNAL_SERVER_ERROR.number)
         .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
-// the getUser request handler
 module.exports.deleteItemByID = (req, res) => {
-  Item.findByIdAndDelete(req.params.itemId)
-    .orFail() // No need to pass a custom error, Mongoose handles this
+  const { itemId } = req.params;
 
-    .then((item) => res.send({ data: item }))
+  Item.findById(itemId)
+    .orFail()
+    .then((item) => {
+      if (item.owner.equals(req.user._id)) {
+        return Item.findByIdAndRemove(itemId).then(() => {
+          res.status(200).send({ message: "Item deleted" });
+        });
+      }
+      return res
+        .status(403)
+        .send({ message: "You don't have permission to delete this item" });
+    })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
-        // Invalid ID format (not a valid ObjectId)
         return res
           .status(errorCodes.BAD_REQUEST.number)
           .send({ message: errorCodes.BAD_REQUEST.message });
       }
-
       if (err.name === "DocumentNotFoundError") {
-        // Document wasn't found (valid ID format but no matching user)
         return res
           .status(errorCodes.NOT_FOUND.number)
           .send({ message: errorCodes.NOT_FOUND.message });
       }
-
-      // Any other error is treated as a server error
       return res
         .status(errorCodes.INTERNAL_SERVER_ERROR.number)
         .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
@@ -68,19 +63,49 @@ module.exports.deleteItemByID = (req, res) => {
 module.exports.likeItem = (req, res) => {
   Item.findByIdAndUpdate(
     req.params.itemId,
-    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .then((item) => res.send({ data: item }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .orFail()
+    .then((item) => res.status(200).send(item))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res
+          .status(errorCodes.BAD_REQUEST.number)
+          .send({ message: errorCodes.BAD_REQUEST.message });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(errorCodes.NOT_FOUND.number)
+          .send({ message: errorCodes.NOT_FOUND.message });
+      }
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+    });
 };
 
 module.exports.dislikeItem = (req, res) => {
   Item.findByIdAndUpdate(
     req.params.itemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((item) => res.send({ data: item }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .orFail()
+    .then((item) => res.status(200).send(item))
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return res
+          .status(errorCodes.BAD_REQUEST.number)
+          .send({ message: errorCodes.BAD_REQUEST.message });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(errorCodes.NOT_FOUND.number)
+          .send({ message: errorCodes.NOT_FOUND.message });
+      }
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+    });
 };

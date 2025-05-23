@@ -14,7 +14,7 @@ const clothingSchema = new mongoose.Schema({
     required: true,
     enum: ["hot", "warm", "cold"], // every user can choose their pronouns
   },
-  link: {
+  imageUrl: {
     type: String,
     required: true,
     validate: {
