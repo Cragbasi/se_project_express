@@ -1,15 +1,8 @@
 const router = require("express").Router();
-const { users } = require("./db");
+const userRouter = require("./users");
+const clothingItemRouter = require("./clothingItems");
 
-const doesUserExist = (req, res, next) => {
-  if (res.staus === 404) {
-    res.send({
-      message: "Requested resource not found",
-    });
-    return;
-  }
+router.use("/users", userRouter);
+router.use("/items", clothingItemRouter);
 
-  next(); // call the next function
-};
-
-router.use("/users/:id", doesUserExist);
+module.exports = router;

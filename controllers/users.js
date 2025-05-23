@@ -12,7 +12,7 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => {
+    .catch((err) => {
       console.error(err);
 
       if (err.name === errorCodes.BAD_REQUEST.number) {

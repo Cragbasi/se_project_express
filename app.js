@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const routes = require("./routes/index");
 const app = express();
 
 const { PORT = 3001 } = process.env;
@@ -14,8 +15,7 @@ app.use((req, res, next) => {
   };
   next();
 });
-app.use("/users", require("./routes/users"));
-app.use("/items", require("./routes/clothingItems"));
+app.use("/", routes);
 
 const handleNonExistentRoute = (req, res, next) => {
   res.status(404);
@@ -26,7 +26,13 @@ const handleNonExistentRoute = (req, res, next) => {
 
 app.use(handleNonExistentRoute);
 
-app.listen(PORT, () => {
-  console.log(`App listening at port ${PORT}`);
-});
-mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db");
+mongoose
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`App listening at port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
