@@ -13,6 +13,7 @@ module.exports.getItems = (req, res) => {
 
 module.exports.createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
+  console.log("at createItem");
 
   Item.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(201).send(item))
@@ -30,6 +31,10 @@ module.exports.createItem = (req, res) => {
 
 module.exports.deleteItemByID = (req, res) => {
   const { itemId } = req.params;
+
+  // check whether the item owner's _id equals the _id of the logged-in user.
+  // If the _id of the current user and the item's owner is the same, the item can be deleted.
+  // This is done with the auth.js
 
   Item.findById(itemId)
     .orFail()

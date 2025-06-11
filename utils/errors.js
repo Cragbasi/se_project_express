@@ -4,6 +4,10 @@ module.exports.errorCodes = {
     message:
       "Invalid data passed to the methods for creating an item/user or updating an item, or invalid ID passed to the params.",
   },
+  UNAUTHORIZED: {
+    number: 401,
+    message: "User not authenticated",
+  },
   NOT_FOUND: {
     number: 404,
     message:
@@ -12,5 +16,9 @@ module.exports.errorCodes = {
   INTERNAL_SERVER_ERROR: {
     number: 500,
     message: "An error has occurred on the server.",
+  },
+  CONFLICT_ERROR: {
+    number: 409,
+    message: "conflict error",
   },
 };

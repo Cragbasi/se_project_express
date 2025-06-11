@@ -2,17 +2,22 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/index");
 
+const cors = require("cors");
+
 const app = express();
 
-const { PORT = 3001 } = process.env;
+const { PORT = 3006 } = process.env;
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  req.user = {
-    _id: "682e15ad8764862e66ca4530", // paste the _id of the test user created in the previous step
-  };
-  next();
-});
+app.use(cors());
+// // Authorization hard coded. Remove the hard-coded user object
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: "682e15ad8764862e66ca4530", // paste the _id of the test user created in the previous step
+//   };
+//   next();
+// });
 app.use("/", routes);
 
 const handleNonExistentRoute = (req, res) => {
