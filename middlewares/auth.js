@@ -1,6 +1,6 @@
+const jwt = require("jsonwebtoken");
 const { errorCodes } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
-const jwt = require("jsonwebtoken");
 
 // The authentication middleware
 module.exports = (req, res, next) => {

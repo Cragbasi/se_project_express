@@ -18,15 +18,13 @@ module.exports.createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then(
-      (hash) => {
-        return User.create({
-          name,
-          avatar,
-          email,
-          password: hash, // adding the hash to the database
-        });
-      } // No need to pass a custom error, Mongoose handles this
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash, // adding the hash to the database
+      })
     )
 
     .then((user) => {
@@ -65,7 +63,6 @@ module.exports.getCurrentUser = (req, res) => {
       .status(errorCodes.UNAUTHORIZED.number)
       .send({ message: errorCodes.UNAUTHORIZED.message });
   }
-
   User.findById(req.user._id)
     .orFail() // No need to pass a custom error, Mongoose handles this
     .then((user) => res.status(200).send({ data: user }))
@@ -185,7 +182,7 @@ module.exports.updateProfile = (req, res) => {
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { $set: { name: name, avatar: avatar } },
+    { $set: { name, avatar } },
     { new: true, runValidators: true } // Return the updated document // validation will be run when updating a resource
   )
     .orFail()

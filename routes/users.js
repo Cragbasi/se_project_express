@@ -7,6 +7,8 @@ const {
   createUser,
   getCurrentUser,
   updateProfile,
+  getUsers,
+  getUserByID,
 } = require("../controllers/users");
 
 userRouter.get("/", getUsers);
