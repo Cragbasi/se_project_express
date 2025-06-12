@@ -5,7 +5,7 @@ const routes = require("./routes/index");
 
 const app = express();
 
-const { PORT = 3001 } = process.env; // port 3006
+const { PORT = 3001 } = process.env; // port 3006 3006
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
