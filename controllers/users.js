@@ -16,6 +16,25 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
+  const { name, avatar } = req.body;
+
+  User.create({ name, avatar })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      console.error(err);
+
+      if (err.name === "ValidationError") {
+        return res
+          .status(errorCodes.BAD_REQUEST.number)
+          .send({ message: errorCodes.BAD_REQUEST.message });
+      }
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+    });
+};
+
+module.exports.signup = (req, res) => {
   const { name, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
