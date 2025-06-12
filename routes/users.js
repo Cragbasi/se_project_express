@@ -9,7 +9,9 @@ const {
   updateProfile,
 } = require("../controllers/users");
 
-// router.get("/", getUsers);
+userRouter.get("/", getUsers);
+userRouter.get("/:userId", getUserByID);
+userRouter.post("/", createUser);
 
 userRouter.get("/users/me", auth, getCurrentUser);
 userRouter.post("/signin", login);

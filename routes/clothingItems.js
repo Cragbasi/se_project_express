@@ -8,7 +8,7 @@ const {
   dislikeItem,
 } = require("../controllers/clothingItems");
 
-clothingItemRouter.get("/", auth, getItems);
+clothingItemRouter.get("/", getItems);
 
 clothingItemRouter.delete("/:itemId", auth, deleteItemByID);
 

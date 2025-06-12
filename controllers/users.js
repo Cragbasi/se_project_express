@@ -93,6 +93,35 @@ module.exports.getCurrentUser = (req, res) => {
     });
 };
 
+// the getUser request handler
+module.exports.getUserByID = (req, res) => {
+  User.findById(req.params.userId)
+    .orFail() // No need to pass a custom error, Mongoose handles this
+    .then((user) => res.send({ data: user }))
+    .catch((err) => {
+      console.error(err);
+
+      if (err.name === "CastError") {
+        // Invalid ID format (not a valid ObjectId)
+        return res
+          .status(errorCodes.BAD_REQUEST.number)
+          .send({ message: errorCodes.BAD_REQUEST.message });
+      }
+
+      if (err.name === "DocumentNotFoundError") {
+        // Document wasn't found (valid ID format but no matching user)
+        return res
+          .status(errorCodes.NOT_FOUND.number)
+          .send({ message: errorCodes.NOT_FOUND.message });
+      }
+
+      // Any other error is treated as a server error
+      return res
+        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
+        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+    });
+};
+
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
