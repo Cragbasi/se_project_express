@@ -13,6 +13,10 @@ module.exports.errorCodes = {
     message:
       "There is no user or clothing item with the requested ID, or the request was sent to a non-existent address.",
   },
+  DELETE_UNAUTHORIZED: {
+    number: 403,
+    message: "You don't have permission to delete this item",
+  },
   INTERNAL_SERVER_ERROR: {
     number: 500,
     message: "An error has occurred on the server.",

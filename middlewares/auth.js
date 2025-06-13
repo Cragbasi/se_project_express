@@ -30,5 +30,5 @@ module.exports = (req, res, next) => {
 
   req.user = payload; // assigning the payload to the request object
   console.log("req.user:", req.user);
-  next(); // sending the request to the next middleware
+  return next(); // sending the request to the next middleware
 };

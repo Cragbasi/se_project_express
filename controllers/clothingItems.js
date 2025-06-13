@@ -45,8 +45,8 @@ module.exports.deleteItemByID = (req, res) => {
         });
       }
       return res
-        .status(403)
-        .send({ message: "You don't have permission to delete this item" });
+        .status(errorCodes.DELETE_UNAUTHORIZED.number)
+        .send({ message: errorCodes.DELETE_UNAUTHORIZED.message });
     })
     .catch((err) => {
       if (err.name === "CastError") {

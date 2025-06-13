@@ -5,16 +5,9 @@ const auth = require("../middlewares/auth");
 const {
   login,
   signup,
-  createUser,
   getCurrentUser,
   updateProfile,
-  getUsers,
-  getUserByID,
 } = require("../controllers/users");
-
-userRouter.get("/users", getUsers);
-userRouter.get("/:userId", getUserByID);
-userRouter.post("/users", createUser);
 
 userRouter.get("/users/me", auth, getCurrentUser);
 userRouter.post("/signin", login);
