@@ -112,8 +112,8 @@ module.exports.login = (req, res) => {
         console.error(err);
         // Invalid ID format (not a valid ObjectId)
         return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
+          .status(errorCodes.UNAUTHORIZED.number)
+          .send({ message: errorCodes.UNAUTHORIZED.message });
       }
 
       if (err.name === "CastError") {
