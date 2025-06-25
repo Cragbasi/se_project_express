@@ -64,3 +64,9 @@ The WTWR server API has been deployed remotely and tested using:
 
 - Postman – To validate API functionality.
 - GitHub Actions – For automated testing and CI/CD workflows
+
+## Links
+
+- [Front-end](git@github.com:Cragbasi/se_project_react.git)
+
+- [Back-end](git@github.com:Cragbasi/se_project_express.git)
