@@ -7,6 +7,7 @@ const { JWT_SECRET } = require("../utils/config");
 
 module.exports.signup = (req, res) => {
   const { name, avatar, email, password } = req.body;
+  console.log(name, avatar, email, password);
   bcrypt
     .hash(password, 10)
     .then((hash) =>
@@ -103,7 +104,7 @@ module.exports.login = (req, res) => {
       });
       console.log("Password valid:", token);
       // successful authentication, send a token
-      res.status(200).send({ message: "Everything good!", token });
+      res.status(200).send({ message: "Everything good!", token, user });
     })
     .catch((err) => {
       console.log("At catch");
