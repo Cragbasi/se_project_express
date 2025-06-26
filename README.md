@@ -67,6 +67,6 @@ The WTWR server API has been deployed remotely and tested using:
 
 ## Links
 
-- [Front-end](git@github.com:Cragbasi/se_project_react.git)
+- [Front-end](https://github.com/Cragbasi/se_project_react)
 
-- [Back-end](git@github.com:Cragbasi/se_project_express.git)
+- [Back-end](https://github.com/Cragbasi/se_project_express)
