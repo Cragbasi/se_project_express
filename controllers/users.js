@@ -4,8 +4,10 @@ const User = require("../models/users");
 const { errorCodes } = require("../utils/errors");
 
 const { JWT_SECRET } = require("../utils/config");
+const UnauthorizedError = require("../errors/UnauthorizedError");
+const ConflictError = require("../errors/ConflictError");
 
-module.exports.signup = (req, res) => {
+module.exports.signup = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   console.log(name, avatar, email, password);
   bcrypt
@@ -28,27 +30,25 @@ module.exports.signup = (req, res) => {
     })
 
     .catch((err) => {
-      console.log("CATCH BLOCK REACHED");
-      console.error(err);
-
-      if (err.name === "ValidationError") {
-        return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
-      }
       if (err.code === 11000) {
-        return res
-          .status(errorCodes.CONFLICT_ERROR.number)
-          .send({ message: errorCodes.CONFLICT_ERROR.message });
+        // return res
+        //   .status(errorCodes.CONFLICT_ERROR.number)
+        //   .send({ message: errorCodes.CONFLICT_ERROR.message });
+        next(new ConflictError("A user with the email already exists"));
       }
-      return res
-        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
+      if (err.name === "ValidationError") {
+        // Invalid ID format (not a valid ObjectId)
+        next(
+          new BadRequestError("Invalid data passed to the methods for signup.")
+        );
+      } else {
+        next(err);
+      }
     });
 };
 
 // the getUser request handler
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   console.log("at getCurrentUser");
   if (!req.user || !req.user._id) {
     return res
@@ -63,26 +63,25 @@ module.exports.getCurrentUser = (req, res) => {
 
       if (err.name === "CastError") {
         // Invalid ID format (not a valid ObjectId)
-        return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
+        next(
+          new BadRequestError(
+            "Invalid data passed to the methods for getting current user."
+          )
+        );
       }
-
       if (err.name === "DocumentNotFoundError") {
-        // Document wasn't found (valid ID format but no matching user)
-        return res
-          .status(errorCodes.NOT_FOUND.number)
-          .send({ message: errorCodes.NOT_FOUND.message });
+        next(
+          new NotFoundError(
+            "There is no user with the requested ID, or the request was sent to a non-existent address."
+          )
+        );
+      } else {
+        next(err);
       }
-
-      // Any other error is treated as a server error
-      return res
-        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res
@@ -110,35 +109,29 @@ module.exports.login = (req, res) => {
       console.log("At catch");
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        console.error(err);
-        // Invalid ID format (not a valid ObjectId)
-        return res
-          .status(errorCodes.UNAUTHORIZED.number)
-          .send({ message: errorCodes.UNAUTHORIZED.message });
+        // console.error(err);
+        // // Invalid ID format (not a valid ObjectId)
+        // return res
+        //   .status(errorCodes.UNAUTHORIZED.number)
+        //   .send({ message: errorCodes.UNAUTHORIZED.message });
+
+        next(new UnauthorizedError("The user email or password is incorrect."));
       }
 
       if (err.name === "CastError") {
-        // Invalid ID format (not a valid ObjectId)
-        return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
+        next(
+          new BadRequestError("The email or password is in an invalid format")
+        );
       }
-
       if (err.name === "DocumentNotFoundError") {
-        // Document wasn't found (valid ID format but no matching user)
-        return res
-          .status(errorCodes.NOT_FOUND.number)
-          .send({ message: errorCodes.NOT_FOUND.message });
+        next(new NotFoundError("The user is not found."));
+      } else {
+        next(err);
       }
-
-      // Any other error is treated as a server error
-      return res
-        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   // Recall that you’ve already set up your user model to validate that the
   // data used meets certain criteria. However,
   // by default, this validation won’t be run when updating a resource.
@@ -152,22 +145,21 @@ module.exports.updateProfile = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
+        next(
+          new BadRequestError(
+            "Invalid data passed to the methods for updating profile."
+          )
+        );
       }
       if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BAD_REQUEST.number)
-          .send({ message: errorCodes.BAD_REQUEST.message });
+        next(new BadRequestError("The name or avatar is in an invalid format"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NOT_FOUND.number)
-          .send({ message: errorCodes.NOT_FOUND.message });
+        next(
+          new NotFoundError("The user is not found to upate name and password.")
+        );
+      } else {
+        next(err);
       }
-      return res
-        .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-        .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
