@@ -2,6 +2,8 @@ const Item = require("../models/clothingItems");
 const { errorCodes } = require("../utils/errors");
 const BadRequestError = require("../errors/BadRequestError");
 const NotFoundError = require("../errors/NotFoundError");
+const ForbiddenError = require("../errors/ForbiddenError");
+const UnauthorizedError = require("../errors/UnauthorizedError");
 
 module.exports.getItems = (req, res, next) => {
   Item.find({})
@@ -17,9 +19,6 @@ module.exports.createItem = (req, res, next) => {
     .then((item) => res.status(201).send(item))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        // return res
-        //   .status(errorCodes.BAD_REQUEST.number)
-        //   .send({ message: errorCodes.BAD_REQUEST.message });
         next(
           new BadRequestError(
             "Invalid data passed to the methods for creating an item."
@@ -28,9 +27,6 @@ module.exports.createItem = (req, res, next) => {
       } else {
         next(err);
       }
-      // return res
-      //   .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-      //   .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
@@ -49,24 +45,18 @@ module.exports.deleteItemByID = (req, res, next) => {
           res.status(200).send({ message: "Item deleted" });
         });
       }
-      return res
-        .status(errorCodes.DELETE_UNAUTHORIZED.number)
-        .send({ message: errorCodes.DELETE_UNAUTHORIZED.message });
+      if (!item) {
+        throw new NotFoundError("Item not found");
+      }
+
+      if (item.owner.toString() !== userId) {
+        throw new UnauthorizedError("You can only delete your own items");
+      }
     })
     .catch((err) => {
-      // if (err.name === "CastError") {
-      //   return res
-      //     .status(errorCodes.BAD_REQUEST.number)
-      //     .send({ message: errorCodes.BAD_REQUEST.message });
-      // }
       if (err.name === "CastError") {
         next(new BadRequestError("The id string is in an invalid format"));
       }
-      // if (err.name === "DocumentNotFoundError") {
-      //   return res
-      //     .status(errorCodes.NOT_FOUND.number)
-      //     .send({ message: errorCodes.NOT_FOUND.message });
-      // }
       if (err.name === "DocumentNotFoundError") {
         next(
           new NotFoundError(
@@ -76,9 +66,6 @@ module.exports.deleteItemByID = (req, res, next) => {
       } else {
         next(err);
       }
-      // return res
-      //   .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-      //   .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
     });
 };
 
@@ -91,11 +78,6 @@ module.exports.likeItem = (req, res, next) => {
     .orFail()
     .then((item) => res.status(200).send(item))
     .catch((err) => {
-      // if (err.name === "CastError") {
-      //   return res
-      //     .status(errorCodes.BAD_REQUEST.number)
-      //     .send({ message: errorCodes.BAD_REQUEST.message });
-      // }
       if (err.name === "CastError") {
         next(
           new BadRequestError(
@@ -103,14 +85,6 @@ module.exports.likeItem = (req, res, next) => {
           )
         );
       }
-      // if (err.name === "DocumentNotFoundError") {
-      //   return res
-      //     .status(errorCodes.NOT_FOUND.number)
-      //     .send({ message: errorCodes.NOT_FOUND.message });
-      // }
-      // return res
-      //   .status(errorCodes.INTERNAL_SERVER_ERROR.number)
-      //   .send({ message: errorCodes.INTERNAL_SERVER_ERROR.message });
       if (err.name === "DocumentNotFoundError") {
         next(
           new NotFoundError(

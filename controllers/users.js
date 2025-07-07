@@ -6,6 +6,7 @@ const { errorCodes } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 const UnauthorizedError = require("../errors/UnauthorizedError");
 const ConflictError = require("../errors/ConflictError");
+const BadRequestError = require("../errors/BadRequestError");
 
 module.exports.signup = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
@@ -31,9 +32,6 @@ module.exports.signup = (req, res, next) => {
 
     .catch((err) => {
       if (err.code === 11000) {
-        // return res
-        //   .status(errorCodes.CONFLICT_ERROR.number)
-        //   .send({ message: errorCodes.CONFLICT_ERROR.message });
         next(new ConflictError("A user with the email already exists"));
       }
       if (err.name === "ValidationError") {
@@ -51,9 +49,7 @@ module.exports.signup = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   console.log("at getCurrentUser");
   if (!req.user || !req.user._id) {
-    return res
-      .status(errorCodes.UNAUTHORIZED.number)
-      .send({ message: errorCodes.UNAUTHORIZED.message });
+    throw new UnauthorizedError("You are not authorized. Please sign in.");
   }
   return User.findById(req.user._id)
     .orFail() // No need to pass a custom error, Mongoose handles this
@@ -109,12 +105,6 @@ module.exports.login = (req, res, next) => {
       console.log("At catch");
       console.error(err);
       if (err.message === "Incorrect email or password") {
-        // console.error(err);
-        // // Invalid ID format (not a valid ObjectId)
-        // return res
-        //   .status(errorCodes.UNAUTHORIZED.number)
-        //   .send({ message: errorCodes.UNAUTHORIZED.message });
-
         next(new UnauthorizedError("The user email or password is incorrect."));
       }
 
@@ -132,9 +122,6 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.updateProfile = (req, res, next) => {
-  // Recall that you’ve already set up your user model to validate that the
-  // data used meets certain criteria. However,
-  // by default, this validation won’t be run when updating a resource.
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,

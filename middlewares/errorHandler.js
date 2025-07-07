@@ -10,12 +10,8 @@ const errorHandler = (err, req, res, next) => {
   let message = errorCodes.INTERNAL_SERVER_ERROR.message;
 
   // Handle different types of errors
-  if (err.name === "ValidationError") {
-    statusCode = 400;
-    message = "Invalid data provided";
-  } else if (err.name === "CastError") {
-    statusCode = 400;
-    message = "Invalid ID format";
+  if (err.code === 400) {
+    message = "Invalid format";
   } else if (err.code === 11000) {
     statusCode = 409;
     message = "Duplicate data - this item already exists";
@@ -25,11 +21,15 @@ const errorHandler = (err, req, res, next) => {
     message = err.message;
   }
 
-  // Send error response
-  res.status(statusCode).json({
-    message: message,
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
-  });
+  const errorResponse = {
+    message: statusCode === 500 ? "An error occurred on the server" : message,
+  };
+
+  if (process.env.NODE_ENV === "development") {
+    errorResponse.stack = err.stack;
+  }
+
+  res.status(statusCode).json(errorResponse);
 };
 
 module.exports = errorHandler;

@@ -27,12 +27,11 @@ const clothingSchema = new mongoose.Schema({
     ref: "user",
     required: true,
   },
-  likes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-    },
-  ],
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "user",
+    default: [], // This ensures every new item starts with an empty likes array
+  },
   createdAt: {
     type: Date,
     default: Date.now,

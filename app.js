@@ -8,6 +8,7 @@ const auth = require("./middlewares/auth");
 const { errorCodes } = require("./utils/errors");
 const errorHandler = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const NotFoundError = require("./errors/NotFoundError");
 
 const app = express();
 
@@ -18,16 +19,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(requestLogger);
 
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", routes);
 
-const handleNonExistentRoute = (req, res) => {
-  res.status(errorCodes.NOT_FOUND.number);
-  res.send({
-    message: "Requested resource not found",
-  });
+const handleNonExistentRoute = (req, res, next) => {
+  next(new NotFoundError("Requested resource not found"));
 };
 
-app.use("/", auth, handleNonExistentRoute);
+app.use("/", handleNonExistentRoute);
 
 app.use(errorLogger); // enabling the error logger
 
