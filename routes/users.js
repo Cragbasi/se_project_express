@@ -4,6 +4,7 @@ const {
   validateUserBody,
   validateAuthentication,
   validateUserId,
+  validateUserProfileUpdate,
 } = require("../middlewares/validation");
 
 const {
@@ -13,10 +14,10 @@ const {
   updateProfile,
 } = require("../controllers/users");
 
-userRouter.get("/users/me", validateUserId, auth, getCurrentUser);
+userRouter.get("/users/me", auth, getCurrentUser);
 
 userRouter.post("/signin", validateAuthentication, login);
 userRouter.post("/signup", validateUserBody, signup);
-userRouter.patch("/users/me", validateUserId, auth, updateProfile);
+userRouter.patch("/users/me", auth, validateUserProfileUpdate, updateProfile);
 
 module.exports = userRouter;

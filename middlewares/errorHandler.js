@@ -10,12 +10,7 @@ const errorHandler = (err, req, res, next) => {
   let message = errorCodes.INTERNAL_SERVER_ERROR.message;
 
   // Handle different types of errors
-  if (err.code === 400) {
-    message = "Invalid format";
-  } else if (err.code === 11000) {
-    statusCode = 409;
-    message = "Duplicate data - this item already exists";
-  } else if (err.statusCode) {
+  if (err.statusCode) {
     // If error already has a status code, use it
     statusCode = err.statusCode;
     message = err.message;

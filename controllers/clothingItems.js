@@ -49,7 +49,7 @@ module.exports.deleteItemByID = (req, res, next) => {
         throw new NotFoundError("Item not found");
       }
 
-      if (item.owner.toString() !== userId) {
+      if (item.owner.toString() !== req.user._id.toString()) {
         throw new UnauthorizedError("You can only delete your own items");
       }
     })
