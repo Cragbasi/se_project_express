@@ -19,11 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(requestLogger);
 
-// app.get("/crash-test", () => {
-//   setTimeout(() => {
-//     throw new Error("Server will crash now");
-//   }, 0);
-// });
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use("/", routes);
 
 const handleNonExistentRoute = (req, res, next) => {
