@@ -6,9 +6,15 @@ const ForbiddenError = require("../errors/ForbiddenError");
 const UnauthorizedError = require("../errors/UnauthorizedError");
 
 module.exports.getItems = (req, res, next) => {
-  Item.find({})
+  if (!req.user || !req.user._id) {
+    throw new UnauthorizedError("Unauthorized: user not found");
+  }
+
+  const userId = req.user._id; // assuming authentication middleware sets req.user
+
+  Item.find({ owner: userId })
     .then((items) => res.status(200).send(items))
-    .catch(next); // Let middleware handle database errors!
+    .catch(next); // Let centralized error handler deal with it
 };
 
 module.exports.createItem = (req, res, next) => {

@@ -12,7 +12,7 @@ const {
   dislikeItem,
 } = require("../controllers/clothingItems");
 
-clothingItemRouter.get("/", getItems);
+clothingItemRouter.get("/", auth, getItems);
 
 clothingItemRouter.delete(
   "/:itemId",
