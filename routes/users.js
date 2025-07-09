@@ -15,11 +15,7 @@ const {
 } = require("../controllers/users");
 
 userRouter.get("/users/me", auth, getCurrentUser);
-userRouter.get("/crash-test", () => {
-  setTimeout(() => {
-    throw new Error("Server will crash now");
-  }, 0);
-});
+
 userRouter.post("/signin", validateAuthentication, login);
 userRouter.post("/signup", validateUserBody, signup);
 userRouter.patch("/users/me", auth, validateUserProfileUpdate, updateProfile);
