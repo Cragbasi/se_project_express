@@ -3,7 +3,6 @@ const auth = require("../middlewares/auth");
 const {
   validateUserBody,
   validateAuthentication,
-  validateUserId,
   validateUserProfileUpdate,
 } = require("../middlewares/validation");
 

@@ -24,6 +24,7 @@ app.get("/crash-test", () => {
     throw new Error("Server will crash now");
   }, 0);
 });
+
 app.use("/", routes);
 
 const handleNonExistentRoute = (req, res, next) => {

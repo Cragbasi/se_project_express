@@ -8,6 +8,16 @@ const UnauthorizedError = require("../errors/UnauthorizedError");
 const ConflictError = require("../errors/ConflictError");
 const BadRequestError = require("../errors/BadRequestError");
 
+const generateToken = (user) => {
+  const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+    expiresIn: "7d",
+  });
+  console.log("Password valid:", token);
+  return token;
+  // successful authentication, send a token
+  // return res.status(200).send({ message: "Everything good!", token, user });
+};
+
 module.exports.signup = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   console.log(name, avatar, email, password);
@@ -24,10 +34,15 @@ module.exports.signup = (req, res, next) => {
 
     .then((user) => {
       // Convert the user document to a plain object and remove the password field
+      const token = generateToken(user);
       const userData = user.toObject();
       delete userData.password;
+      console.log("at signup, user:", userData);
 
-      res.status(201).send({ data: userData }); // Send response without password
+      //  res
+      //   .status(200)
+      //   .send({ message: "Everything good!", token, userData });
+      res.status(201).send({ user: userData, token }); // Send response without password
     })
 
     .catch((err) => {
@@ -38,38 +53,6 @@ module.exports.signup = (req, res, next) => {
         // Invalid ID format (not a valid ObjectId)
         next(
           new BadRequestError("Invalid data passed to the methods for signup.")
-        );
-      } else {
-        next(err);
-      }
-    });
-};
-
-// the getUser request handler
-module.exports.getCurrentUser = (req, res, next) => {
-  console.log("at getCurrentUser");
-  if (!req.user || !req.user._id) {
-    throw new UnauthorizedError("You are not authorized. Please sign in.");
-  }
-  return User.findById(req.user._id)
-    .orFail() // No need to pass a custom error, Mongoose handles this
-    .then((user) => res.status(200).send({ data: user }))
-    .catch((err) => {
-      console.error(err);
-
-      if (err.name === "CastError") {
-        // Invalid ID format (not a valid ObjectId)
-        next(
-          new BadRequestError(
-            "Invalid data passed to the methods for getting current user."
-          )
-        );
-      }
-      if (err.name === "DocumentNotFoundError") {
-        next(
-          new NotFoundError(
-            "There is no user with the requested ID, or the request was sent to a non-existent address."
-          )
         );
       } else {
         next(err);
@@ -115,6 +98,38 @@ module.exports.login = (req, res, next) => {
       }
       if (err.name === "DocumentNotFoundError") {
         next(new NotFoundError("The user is not found."));
+      } else {
+        next(err);
+      }
+    });
+};
+
+// the getUser request handler
+module.exports.getCurrentUser = (req, res, next) => {
+  console.log("at getCurrentUser");
+  if (!req.user || !req.user._id) {
+    throw new UnauthorizedError("You are not authorized. Please sign in.");
+  }
+  return User.findById(req.user._id)
+    .orFail() // No need to pass a custom error, Mongoose handles this
+    .then((user) => res.status(200).send({ data: user }))
+    .catch((err) => {
+      console.error(err);
+
+      if (err.name === "CastError") {
+        // Invalid ID format (not a valid ObjectId)
+        next(
+          new BadRequestError(
+            "Invalid data passed to the methods for getting current user."
+          )
+        );
+      }
+      if (err.name === "DocumentNotFoundError") {
+        next(
+          new NotFoundError(
+            "There is no user with the requested ID, or the request was sent to a non-existent address."
+          )
+        );
       } else {
         next(err);
       }

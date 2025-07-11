@@ -6,6 +6,7 @@ const ForbiddenError = require("../errors/ForbiddenError");
 const UnauthorizedError = require("../errors/UnauthorizedError");
 
 module.exports.getItems = (req, res, next) => {
+  console.log("at eports.getItems, req:", req);
   if (!req.user || !req.user._id) {
     throw new UnauthorizedError("Unauthorized: user not found");
   }
@@ -56,7 +57,7 @@ module.exports.deleteItemByID = (req, res, next) => {
       }
 
       if (item.owner.toString() !== req.user._id.toString()) {
-        throw new UnauthorizedError("You can only delete your own items");
+        throw new ForbiddenError("You can only delete your own items");
       }
     })
     .catch((err) => {
