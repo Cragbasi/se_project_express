@@ -7,6 +7,7 @@ const { JWT_SECRET } = require("../utils/config");
 const UnauthorizedError = require("../errors/UnauthorizedError");
 const ConflictError = require("../errors/ConflictError");
 const BadRequestError = require("../errors/BadRequestError");
+const NotFoundError = require("../errors/NotFoundError");
 
 const generateToken = (user) => {
   const token = jwt.sign({ _id: user._id }, JWT_SECRET, {

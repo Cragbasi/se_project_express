@@ -4,8 +4,6 @@ require("dotenv").config();
 const cors = require("cors");
 const { errors } = require("celebrate");
 const routes = require("./routes/index");
-const auth = require("./middlewares/auth");
-const { errorCodes } = require("./utils/errors");
 const errorHandler = require("./middlewares/errorHandler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const NotFoundError = require("./errors/NotFoundError");
