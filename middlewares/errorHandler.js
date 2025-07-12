@@ -6,8 +6,7 @@ const errorHandler = (err, req, res, next) => {
   console.error(err.stack);
 
   // Default error response
-  let statusCode = errorCodes.INTERNAL_SERVER_ERROR.number;
-  let message = errorCodes.INTERNAL_SERVER_ERROR.message;
+  let { number: statusCode, message } = errorCodes.INTERNAL_SERVER_ERROR;
 
   // Handle different types of errors
   if (err.statusCode) {

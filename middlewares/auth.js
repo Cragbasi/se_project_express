@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
     console.log("JWT_SECRET:", JWT_SECRET);
     console.log("payload:", payload);
   } catch (err) {
-    throw new ForbiddenError("You are not authorized");
+    throw new ForbiddenError("You are not authorized. Please log in.");
   }
 
   req.user = payload; // assigning the payload to the request object

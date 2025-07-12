@@ -9,15 +9,14 @@ const ConflictError = require("../errors/ConflictError");
 const BadRequestError = require("../errors/BadRequestError");
 const NotFoundError = require("../errors/NotFoundError");
 
-const generateToken = (user) => {
-  const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-    expiresIn: "7d",
-  });
-  console.log("Password valid:", token);
-  return token;
-  // successful authentication, send a token
-  // return res.status(200).send({ message: "Everything good!", token, user });
-};
+// const generateToken = (user) => {
+//   const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+//     expiresIn: "7d",
+//   });
+//   console.log("Password valid:", token);
+//   return token;
+
+// };
 
 module.exports.signup = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
@@ -34,16 +33,13 @@ module.exports.signup = (req, res, next) => {
     )
 
     .then((user) => {
+      // const token = generateToken(user);
       // Convert the user document to a plain object and remove the password field
-      const token = generateToken(user);
       const userData = user.toObject();
       delete userData.password;
       console.log("at signup, user:", userData);
 
-      //  res
-      //   .status(200)
-      //   .send({ message: "Everything good!", token, userData });
-      res.status(201).send({ user: userData, token }); // Send response without password
+      res.status(201).send({ user: userData }); // Send response without password
     })
 
     .catch((err) => {
