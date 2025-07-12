@@ -2,7 +2,6 @@ const Item = require("../models/clothingItems");
 const BadRequestError = require("../errors/BadRequestError");
 const NotFoundError = require("../errors/NotFoundError");
 const ForbiddenError = require("../errors/ForbiddenError");
-const UnauthorizedError = require("../errors/UnauthorizedError");
 
 // module.exports.getItems = (req, res, next) => {
 //   console.log("at eports.getItems, req:", req);
@@ -53,18 +52,21 @@ module.exports.deleteItemByID = (req, res, next) => {
   Item.findById(itemId)
     .orFail()
     .then((item) => {
+      if (!item) {
+        throw new NotFoundError("Item not found");
+      }
       if (item.owner.equals(req.user._id)) {
         return Item.findByIdAndDelete(itemId).then(() => {
           res.status(200).send({ message: "Item deleted" });
         });
       }
-      if (!item) {
-        throw new NotFoundError("Item not found");
-      }
 
       if (item.owner.toString() !== req.user._id.toString()) {
-        throw new ForbiddenError("You can only delete your own items");
+        return Promise.reject(
+          new ForbiddenError("You can only delete your own items")
+        );
       }
+      return null;
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -78,9 +80,8 @@ module.exports.deleteItemByID = (req, res, next) => {
             "There is no clothing item with the requested ID, or the request was sent to a non-existent address."
           )
         );
-      } else {
-        return next(err);
       }
+      return next(err);
     });
 };
 
